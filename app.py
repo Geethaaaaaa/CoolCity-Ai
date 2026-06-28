@@ -445,7 +445,7 @@ def style_lst(val):
 display_df = df[['City', 'State', 'LST', 'NDVI', 'NDBI', 'NDWI', 'Heat Risk']].copy()
 st.dataframe(
     display_df.style
-        .applymap(style_lst, subset=['LST'])
+        .map(style_lst, subset=['LST'])
         .format({'LST': '{:.2f}°C', 'NDVI': '{:.4f}', 'NDBI': '{:.4f}', 'NDWI': '{:.4f}'}),
     use_container_width=True,
     height=280
