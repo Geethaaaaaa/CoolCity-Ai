@@ -399,7 +399,7 @@ st.markdown("""
     <div style="margin-bottom:0.8rem;">
         <span class="hero-badge">🛰️ BAH 2026 — PS01</span>
         <span class="hero-badge hero-badge-team">👩‍💻 3 CODES & 1 CIRCUIT</span>
-        <span class="hero-badge" style="background:rgba(188,140,255,0.15);border-color:rgba(188,140,255,0.3);color:#BC8CFF;">🎓 Andhra University</span>
+        <span class="hero-badge" style="background:rgba(188,140,255,0.15);border-color:rgba(188,140,255,0.3);color:#BC8CFF;">🎓BAH 2026 </span>
     </div>
     <h1 class="hero-title">🌡️ CoolCity <span>AI</span></h1>
     <p class="hero-subtitle">Urban Heat Mitigation System — Satellite-driven AI/ML analysis of Urban Heat Islands across Indian cities</p>
@@ -684,7 +684,7 @@ for i, (color, text) in enumerate(findings):
 # ============================================================
 st.markdown("""
 <div class="footer-bar">
-    🛰️ &nbsp; CoolCity AI &nbsp;|&nbsp; 3 CODES & 1 CIRCUIT &nbsp;|&nbsp; Andhra University &nbsp;|&nbsp;
+    🛰️ &nbsp; CoolCity AI &nbsp;|&nbsp; 3 CODES & 1 CIRCUIT &nbsp;|&nbsp;
     Bharatiya Antariksh Hackathon 2026 — Problem Statement 01 &nbsp;|&nbsp; Data: Landsat 8 via Google Earth Engine
 </div>
 """, unsafe_allow_html=True)
