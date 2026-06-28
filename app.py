@@ -329,12 +329,19 @@ st.markdown("""
 # DATA
 # ============================================================
 data = {
-    'City':  ['Hyderabad', 'Chennai', 'Delhi', 'Nagpur', 'Ahmedabad', 'Jaipur', 'Lucknow'],
-    'State': ['Telangana', 'Tamil Nadu', 'NCT', 'Maharashtra', 'Gujarat', 'Rajasthan', 'UP'],
-    'LST':   [40.90, 39.52, 39.40, 39.50, 44.00, 47.70, 30.20],
-    'NDVI':  [0.15,  0.14,  0.12,  0.15,  0.15,  0.12,  0.15],
-    'NDBI':  [-0.0017, -0.016, -0.01, -0.013, -0.008, 0.04, -0.02],
-    'NDWI':  [-0.18, -0.15, -0.15, -0.10, -0.18, 0.16, -0.18]
+    'City':      ['Hyderabad', 'Chennai', 'Delhi', 'Nagpur', 'Ahmedabad', 'Jaipur', 'Lucknow'],
+    'State':     ['Telangana', 'Tamil Nadu', 'NCT', 'Maharashtra', 'Gujarat', 'Rajasthan', 'UP'],
+    'LST':       [40.90, 39.52, 39.40, 39.50, 44.00, 47.70, 30.20],
+    'NDVI':      [0.15, 0.14, 0.12, 0.15, 0.15, 0.12, 0.15],
+    'NDBI':      [-0.0017, -0.016, -0.01, -0.013, -0.008, 0.04, -0.02],
+    'NDWI':      [-0.18, -0.15, -0.15, -0.10, -0.18, 0.16, -0.18],
+    'Air_Temp':  [29.54, 30.16, 27.95, 30.36, 31.42, 29.54, 27.90],
+    'Max_Temp':  [35.04, 33.25, 33.87, 36.45, 37.54, 35.82, 33.56],
+    'Humidity':  [54.04, 72.98, 58.52, 50.18, 46.58, 41.85, 61.90],
+    'Wind':      [1.15, 2.61, 0.49, 0.83, 1.43, 0.69, 0.52],
+    'Precip':    [1.67, 0.97, 1.76, 2.36, 0.62, 0.87, 2.73],
+    'Lat':       [17.385, 13.082, 28.613, 21.145, 23.022, 26.912, 26.846],
+    'Lon':       [78.486, 80.270, 77.209, 79.088, 72.571, 75.787, 80.946]
 }
 df = pd.DataFrame(data)
 
@@ -350,7 +357,7 @@ df['Heat Risk'] = df['LST'].apply(heat_risk)
 # ============================================================
 # MODEL
 # ============================================================
-X = df[['NDVI', 'NDBI', 'NDWI']]
+X = df[['NDVI', 'NDBI', 'NDWI', 'Air_Temp', 'Humidity', 'Wind']]
 y = df['LST']
 model = RandomForestRegressor(n_estimators=200, random_state=42)
 model.fit(X, y)
@@ -441,11 +448,11 @@ def style_lst(val):
         else:           return 'background-color:#00C9A722;color:#00C9A7;font-weight:700'
     return ''
 
-display_df = df[['City', 'State', 'LST', 'NDVI', 'NDBI', 'NDWI', 'Heat Risk']].copy()
+display_df = df[['City', 'State', 'LST', 'NDVI', 'NDBI', 'NDWI', 'Air_Temp', 'Max_Temp', 'Humidity', 'Wind', 'Precip', 'Heat Risk']].copy()
 st.dataframe(
     display_df.style
         .map(style_lst, subset=['LST'])
-        .format({'LST': '{:.2f}°C', 'NDVI': '{:.4f}', 'NDBI': '{:.4f}', 'NDWI': '{:.4f}'}),
+        .format({'LST': '{:.2f}°C', 'NDVI': '{:.4f}', 'NDBI': '{:.4f}', 'NDWI': '{:.4f}', 'Air_Temp': '{:.1f}°C', 'Max_Temp': '{:.1f}°C', 'Humidity': '{:.1f}%', 'Wind': '{:.2f}m/s', 'Precip': '{:.2f}mm'}),
     use_container_width=True,
     height=280
 )
@@ -739,7 +746,14 @@ with sim_col1:
 
 with sim_col2:
     predicted_temp = model.predict(
-        pd.DataFrame({'NDVI': [new_ndvi], 'NDBI': [new_ndbi], 'NDWI': [new_ndwi]})
+        pd.DataFrame({
+    'NDVI': [new_ndvi], 
+    'NDBI': [new_ndbi], 
+    'NDWI': [new_ndwi],
+    'Air_Temp': [float(city_row['Air_Temp'])],
+    'Humidity': [float(city_row['Humidity'])],
+    'Wind': [float(city_row['Wind'])]
+})
     )[0]
     temp_change = predicted_temp - city_row['LST']
 
