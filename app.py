@@ -617,28 +617,50 @@ with col_a:
     st.pyplot(fig1, use_container_width=True)
 
 # Chart 2 — Feature Importance
+# Chart 2 — Split Feature Importance
 with col_b:
-    fig2, ax2 = plt.subplots(figsize=(7, 4))
-    feat_labels = ['NDBI\n(Concrete)', 'NDWI\n(Water)', 'NDVI\n(Greenery)']
-    feat_colors = [PALETTE['orange'], PALETTE['blue'], PALETTE['green']]
-    feat_vals   = importances  # order matches X columns: NDVI, NDBI, NDWI
-    # reorder to NDBI, NDWI, NDVI for display
-    order = [1, 2, 0]
-    disp_vals   = [importances[i] for i in order]
-    disp_labels = feat_labels
-    disp_colors = feat_colors
-    bars2 = ax2.bar(disp_labels, disp_vals, color=disp_colors,
-                    width=0.5, edgecolor='none', zorder=3)
-    ax2.set_ylim(0, 1)
-    ax2.set_ylabel('Importance Score', fontsize=9)
-    ax2.set_title('What Drives Urban Heat the Most?', fontsize=11,
-                  fontweight='600', color='#E6EDF3', pad=12)
-    ax2.grid(axis='y', zorder=0)
-    for bar, val in zip(bars2, disp_vals):
-        ax2.text(bar.get_x() + bar.get_width()/2,
-                 bar.get_height() + 0.02,
-                 f'{val:.2f}', ha='center', fontsize=9,
-                 color='#E6EDF3', fontweight='700')
+    fig2, axes2 = plt.subplots(1, 2, figsize=(7, 4))
+    fig2.suptitle('What Drives Urban Heat?', fontsize=11,
+                  fontweight='600', color='#E6EDF3', y=1.02)
+
+    # Get importances in correct order
+    # X = ['NDVI', 'NDBI', 'NDWI', 'Air_Temp', 'Humidity', 'Wind']
+    imp = model.feature_importances_
+
+    # Satellite indices (NDVI=0, NDBI=1, NDWI=2)
+    sat_labels = ['NDVI\n(Greenery)', 'NDBI\n(Concrete)', 'NDWI\n(Water)']
+    sat_vals   = [imp[0], imp[1], imp[2]]
+    sat_colors = [PALETTE['green'], PALETTE['orange'], PALETTE['blue']]
+
+    bars_a = axes2[0].bar(sat_labels, sat_vals, color=sat_colors,
+                          width=0.5, edgecolor='none', zorder=3)
+    axes2[0].set_ylim(0, 1)
+    axes2[0].set_title('Satellite Indices', fontsize=9,
+                       fontweight='600', color='#8B949E')
+    axes2[0].grid(axis='y', zorder=0)
+    for bar, val in zip(bars_a, sat_vals):
+        axes2[0].text(bar.get_x() + bar.get_width()/2,
+                      bar.get_height() + 0.02,
+                      f'{val:.2f}', ha='center', fontsize=8,
+                      color='#E6EDF3', fontweight='700')
+
+    # Meteorological (Air_Temp=3, Humidity=4, Wind=5)
+    met_labels = ['Air\nTemp', 'Humidity', 'Wind\nSpeed']
+    met_vals   = [imp[3], imp[4], imp[5]]
+    met_colors = [PALETTE['red'], PALETTE['teal'], PALETTE['purple']]
+
+    bars_b = axes2[1].bar(met_labels, met_vals, color=met_colors,
+                          width=0.5, edgecolor='none', zorder=3)
+    axes2[1].set_ylim(0, 1)
+    axes2[1].set_title('Meteorological', fontsize=9,
+                       fontweight='600', color='#8B949E')
+    axes2[1].grid(axis='y', zorder=0)
+    for bar, val in zip(bars_b, met_vals):
+        axes2[1].text(bar.get_x() + bar.get_width()/2,
+                      bar.get_height() + 0.02,
+                      f'{val:.2f}', ha='center', fontsize=8,
+                      color='#E6EDF3', fontweight='700')
+
     plt.tight_layout()
     st.pyplot(fig2, use_container_width=True)
 
@@ -701,6 +723,15 @@ with col_d:
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 st.markdown('<p class="section-header">🧪 Mitigation Strategy Simulator</p>', unsafe_allow_html=True)
 st.markdown('<p style="color:#8B949E;font-size:0.85rem;margin-bottom:1rem;">Select a city and adjust the sliders to simulate real cooling strategies. The AI model predicts the new surface temperature instantly.</p>', unsafe_allow_html=True)
+st.markdown("""
+<div style="background:#0D1117;border:1px solid #30363D;border-left:3px solid #4E9AF1;
+border-radius:0 8px 8px 0;padding:0.7rem 1rem;margin-bottom:1rem;">
+<p style="color:#4E9AF1;font-size:0.78rem;margin:0;font-family:'JetBrains Mono',monospace;">
+ℹ️ Adjustable: Green cover, Concrete density, Water bodies<br>
+🔒 Fixed (weather variables): Air Temperature, Humidity, Wind Speed
+</p>
+</div>
+""", unsafe_allow_html=True)
 
 selected_city = st.selectbox(
     "SELECT CITY",
@@ -789,11 +820,15 @@ with sim_col2:
     # Auto recommendation
     st.markdown('<p style="color:#8B949E;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;margin:1rem 0 0.5rem;font-family:JetBrains Mono,monospace;">Priority Actions</p>', unsafe_allow_html=True)
     if city_row['NDBI'] > 0:
-        st.markdown('<div class="finding-card orange"><span class="finding-text">🏗️ High concrete density detected — prioritize reducing built-up surfaces first</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="finding-card orange"><span class="finding-text">🏗️ High concrete density — prioritize reducing built-up surfaces first</span></div>', unsafe_allow_html=True)
     if city_row['NDWI'] < -0.15:
         st.markdown('<div class="finding-card blue"><span class="finding-text">💧 Critical water deficit — add lakes, ponds, or urban wetlands</span></div>', unsafe_allow_html=True)
     if city_row['NDVI'] < 0.13:
         st.markdown('<div class="finding-card" style="border-left-color:#3FB950"><span class="finding-text">🌿 Low vegetation — increase tree canopy and rooftop gardens</span></div>', unsafe_allow_html=True)
+    if city_row['Humidity'] < 45:
+        st.markdown('<div class="finding-card" style="border-left-color:#00C9A7"><span class="finding-text">💨 Very low humidity — city has dry heat stress, water bodies will help significantly</span></div>', unsafe_allow_html=True)
+    if city_row['Wind'] < 0.6:
+        st.markdown('<div class="finding-card" style="border-left-color:#BC8CFF"><span class="finding-text">🌬️ Low wind speed — poor ventilation traps heat, consider urban corridors for airflow</span></div>', unsafe_allow_html=True)
 
 # ============================================================
 # SECTION 5 — KEY FINDINGS
